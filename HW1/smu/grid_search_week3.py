@@ -2,6 +2,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
 class GridSearch:
+
     def run(self, classifier , data , parameters):
         ret ={}
         cls = classifier(**parameters)

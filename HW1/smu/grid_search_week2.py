@@ -19,6 +19,7 @@ class GridSearch:
             ret[idx] = {'clf' : cls,
                         'train_idx' : train_idx,
                         'test_idx' : test_idx,
+                        'params' : parameters,
                         'accuracy': acc}
 
         return ret
