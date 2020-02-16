@@ -36,7 +36,10 @@ A medical claim is denoted by a claim number ('Claim.Number'). Each claim consis
 
 import matplotlib.pyplot as plt
 from collections import Counter, defaultdict
-
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import OneHotEncoder
+import math
 
 with open('claim.sample.csv', 'r') as f:
      claims = f.readlines()
@@ -96,7 +99,22 @@ def show_plot():
 '''
 zero_payment_count = len([ x['Provider.ID'] for x in j_claims if x['Provider.Payment.Amount'].startswith('0')])
 non_zero_payment_count = len([ x['Provider.ID'] for x in j_claims if float(x['Provider.Payment.Amount'])!=0])
+claims_data = [x.split(',') for x in claims]
+x_data = [[float(x[11]) ] for x in claims_data[1:]]
+y_data = [0 if math.isclose(float(x[19]),0) else 1 for x in  claims_data[1:]]
+enc = OneHotEncoder(drop='first')
+
+lr = LogisticRegression()
+lr.fit(x_data, y_data)
+score = lr.score(x_data, y_data)
+enc.fit([[x[14], x[claims_data[0].index('Claim.Type')], x[claims_data[0].index('Revenue.Code')],x[claims_data[0].index('Diagnosis.Code')]] for x in claims_data[1:]])
+aa = enc.transform([[x[14], x[claims_data[0].index('Claim.Type')], x[claims_data[0].index('Revenue.Code')],x[claims_data[0].index('Diagnosis.Code')]] for x in claims_data[1:]])
+x_data = np.concatenate((np.array(aa.toarray()),np.array(x_data)), axis =1)
+
+lr = LogisticRegression()
+lr.fit(x_data, y_data)
+score2 = lr.score(x_data, y_data)
+
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_data, lr.predict(x_data))
 print(zero_payment_count/non_zero_payment_count)
-
-
- 
